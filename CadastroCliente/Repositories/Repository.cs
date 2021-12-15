@@ -1,42 +1,51 @@
-﻿namespace CadastroCliente.Repositories
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace CadastroCliente.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
         private DAL.ClienteContext Context;
+        private DbSet<T> Table;
 
         public Repository(DAL.ClienteContext context)
         {
            Context = context;
+            Table = context.Set<T>();
         }
 
         public void Delete(T entity)
         {
-            Context.Clientes.Remove(entity);
+            T existing = Table.Find(entity);
+            if (existing != null)
+            {
+                Table.Remove(existing);
+            }
         }
 
         public IEnumerable<T> GetAll()
         {
-            throw new NotImplementedException();
+            return Table.ToList();
         }
 
         public T GetbyId(object id)
         {
-            throw new NotImplementedException();
+            return Table.Find(id);
         }
 
         public void Insert(T entity)
         {
-            throw new NotImplementedException();
+            Table.Add(entity);
         }
 
         public void Save()
         {
-            throw new NotImplementedException();
+            Context.SaveChanges();
         }
 
         public void Update(T entity)
         {
-            throw new NotImplementedException();
+            Table.Attach(entity);
+            Context.Entry(entity).State = EntityState.Modified;
         }
     }
 }
