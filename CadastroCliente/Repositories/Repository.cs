@@ -4,8 +4,8 @@ namespace CadastroCliente.Repositories
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private DAL.ClienteContext Context;
-        private DbSet<T> Table;
+        private readonly DAL.ClienteContext Context;
+        private readonly DbSet<T> Table;
 
         public Repository(DAL.ClienteContext context)
         {

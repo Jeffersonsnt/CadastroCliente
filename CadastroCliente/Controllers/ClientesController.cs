@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using CadastroCliente.DAL;
 using CadastroCliente.Models;
+using CadastroCliente.Repositories;
 
 namespace CadastroCliente.Controllers
 {
@@ -14,25 +15,25 @@ namespace CadastroCliente.Controllers
     [ApiController]
     public class ClientesController : ControllerBase
     {
-        private readonly ClienteContext _context;
+        private readonly IRepository<Cliente> repository;
 
         public ClientesController(ClienteContext context)
         {
-            _context = context;
+            repository = new Repository<Cliente>(context);
         }
 
         // GET: api/Clientes
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Cliente>>> GetClientes()
         {
-            return await _context.Clientes.ToListAsync();
+            return await Task.FromResult(repository.GetAll().ToList());
         }
 
         // GET: api/Clientes/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Cliente>> GetCliente(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
+            var cliente = await Task.FromResult(repository.GetbyId(id));
 
             if (cliente == null)
             {
@@ -49,20 +50,20 @@ namespace CadastroCliente.Controllers
         {
             if (id != cliente.Id)
             {
-                return BadRequest();
+                return await Task.FromResult(BadRequest());
             }
 
-            _context.Entry(cliente).State = EntityState.Modified;
+            repository.Update(cliente);
 
             try
             {
-                await _context.SaveChangesAsync();
+                repository.Save();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!ClienteExists(id))
+                if (!await Task.FromResult(ClienteExists(id)))
                 {
-                    return NotFound();
+                    return await Task.FromResult(NotFound());
                 }
                 else
                 {
@@ -70,7 +71,7 @@ namespace CadastroCliente.Controllers
                 }
             }
 
-            return NoContent();
+            return await Task.FromResult(NoContent());
         }
 
         // POST: api/Clientes
@@ -78,31 +79,35 @@ namespace CadastroCliente.Controllers
         [HttpPost]
         public async Task<ActionResult<Cliente>> PostCliente(Cliente cliente)
         {
-            _context.Clientes.Add(cliente);
-            await _context.SaveChangesAsync();
+            repository.Insert(cliente);
+            repository.Save();
 
-            return CreatedAtAction("GetCliente", new { id = cliente.Id }, cliente);
+            return await Task.FromResult(CreatedAtAction("GetCliente", new
+            {
+                id = cliente.Id
+            }, cliente));
         }
 
         // DELETE: api/Clientes/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCliente(int id)
         {
-            var cliente = await _context.Clientes.FindAsync(id);
+            var cliente = await Task.FromResult(repository.GetbyId(id));
+
             if (cliente == null)
             {
-                return NotFound();
+                return await Task.FromResult(NotFound());
             }
 
-            _context.Clientes.Remove(cliente);
-            await _context.SaveChangesAsync();
+            repository.Delete(cliente);
+            repository.Save();
 
-            return NoContent();
+            return await Task.FromResult(NoContent());
         }
 
         private bool ClienteExists(int id)
         {
-            return _context.Clientes.Any(e => e.Id == id);
+            return repository.GetAll().Any(x => x.Id == id);
         }
     }
 }
