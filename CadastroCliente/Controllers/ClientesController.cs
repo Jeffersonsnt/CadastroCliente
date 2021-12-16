@@ -92,7 +92,7 @@ namespace CadastroCliente.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteCliente(int id)
         {
-            var cliente = await Task.FromResult(repository.GetbyId(id));
+            var cliente = repository.GetbyId(id);
 
             if (cliente == null)
             {

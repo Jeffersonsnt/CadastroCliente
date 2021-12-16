@@ -15,11 +15,7 @@ namespace CadastroCliente.Repositories
 
         public void Delete(T entity)
         {
-            T existing = Table.Find(entity);
-            if (existing != null)
-            {
-                Table.Remove(existing);
-            }
+            Table.Remove(entity);
         }
 
         public IEnumerable<T> GetAll()

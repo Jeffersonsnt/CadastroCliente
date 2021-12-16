@@ -7,7 +7,7 @@
         public long Cpf { get; set; }
         public int Telefone { get; set; }
         public string Email { get; set; } = string.Empty;
-        public DateOnly DataNascimento { get; set; }
+        public DateTime DataNascimento { get; set; }
 
     }
 }
