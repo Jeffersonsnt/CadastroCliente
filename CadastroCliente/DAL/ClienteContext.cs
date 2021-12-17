@@ -14,7 +14,9 @@ namespace CadastroCliente.DAL
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<Cliente>().HasKey(m => m.Id);
+            builder.Entity<Cliente>()
+                .HasKey(m => m.Id);
+
             base.OnModelCreating(builder);
         }
     }
